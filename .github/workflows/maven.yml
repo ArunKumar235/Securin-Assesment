@@ -48,9 +48,7 @@ jobs:
 
       - name: Build with Maven
         env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/securin
-          SPRING_DATASOURCE_USERNAME: postgres
-          SPRING_DATASOURCE_PASSWORD: postgres
+          SPRING_PROFILES_ACTIVE: test
         run: mvn -B package --file pom.xml
 
       # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
