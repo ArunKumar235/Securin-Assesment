@@ -12,6 +12,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,7 +26,7 @@ public class RecipeController {
     private final RecipeService service;
 
     @GetMapping("/")
-    public PagedModel<EntityModel<RecipeOutDTO>> getRecipes(
+    public ResponseEntity<PagedModel<EntityModel<RecipeOutDTO>>> getRecipes(
 //            @RequestParam(name = "page", defaultValue = "0")int page,
 //            @RequestParam(name = "size", defaultValue = "10")int size,
 //            @RequestParam(name = "sortBy", defaultValue = "rating") String sortBy,
@@ -37,11 +39,11 @@ public class RecipeController {
 //        Page<Recipe> recipePage = service.getAllRecipes(page, size, sortBy, order);
         //  PagedResourcesAssembler<Recipe>: This is a Spring HATEOAS utility. Its only job is to take a Spring Data Page and wrap it in a PagedModel. It calculates the _links (next, prev, etc.) based on the page metadata.
         //  RecipeModelAssembler: This is your custom class (extending RepresentationModelAssembler). Its job is to convert a single Recipe entity into a RecipeOutDTO (RecipeModel).
-        return pagedResourcesAssembler.toModel(recipePage, recipeModelAssembler);
+        return ResponseEntity.ok(pagedResourcesAssembler.toModel(recipePage, recipeModelAssembler));
     }
 
     @GetMapping("/search")
-    public PagedModel<EntityModel<RecipeOutDTO>> searchRecipes(
+    public ResponseEntity<PagedModel<EntityModel<RecipeOutDTO>>> searchRecipes(
         @RequestParam(required = false) String calories,
         @RequestParam(required = false) String title,
         @RequestParam(required = false) String cuisine,
@@ -59,18 +61,18 @@ public class RecipeController {
 
          Page<Recipe> recipePage = service.searchRecipes(specification, pageable);
 
-         return pagedResourcesAssembler.toModel(recipePage, recipeModelAssembler);
+         return ResponseEntity.ok(pagedResourcesAssembler.toModel(recipePage, recipeModelAssembler));
     }
 
     @PostMapping("/upload")
-    public String uploadRecipes(
+    public ResponseEntity<String> uploadRecipes(
             @RequestParam(name = "file") MultipartFile file
     ) {
         try {
             service.loadRecipes(file.getInputStream());
-            return "Data inserted successfully";
+            return ResponseEntity.status(HttpStatus.CREATED).body("Data inserted successfully");
         } catch (Exception e) {
-            return "Failed: " + e.getMessage();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed: " + e.getMessage());
         }
     }
 
